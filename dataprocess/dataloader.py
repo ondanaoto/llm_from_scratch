@@ -8,15 +8,6 @@ from .tokenizer import TokenizerInterface
 class GPTDatasetV1(Dataset):
     """
     訓練のためのdatasetを作成するクラス
-
-    必要なもの
-    - txt: str(テキストデータ)
-    - tokenizer: TokenizerInterface(トークナイザ)
-
-    訓練できる形に変換するときのパラメータ
-
-    - max_length: int(次単語予測のためのヒントの数)
-    - stride: int(トークンのずらし幅．大きいほど訓練データが少なくなる)
     """
 
     def __init__(
@@ -27,8 +18,8 @@ class GPTDatasetV1(Dataset):
         Args:
             txt (str): テキストデータ
             tokenizer (TokenizerInterface): トークナイザ
-            max_length (int): 次単語予測のためのヒントの数
-            stride (int): トークンのずらし幅．大きいほど訓練データが少なくなる．
+            max_length (int): 次単語予測のためのヒントの数．256などの大きめの値が指定されがち．
+            stride (int): トークンのずらし幅．大きいほど訓練データが少なくなる．max_lengthと同じにするとバッチ間のオーバーラップを防げる．オーバーラップは過適合のリスクを高める
         """
         # 入力変数を格納するリスト
         # idのリストをtensorに変換したものが入る
