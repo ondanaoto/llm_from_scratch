@@ -1,0 +1,21 @@
+version: '3'
+
+tasks:
+  default:
+    desc: "Show all tasks"
+    cmd: task --list
+
+  init:
+    desc: "Initialize project"
+    cmds:
+      - python setup/data_prepare.py
+
+  format:
+    desc: "Run Ruff"
+    cmds:
+      - ruff format .
+
+  test:
+    desc: "Run tests"
+    cmds:
+      - pytest
