@@ -1,5 +1,6 @@
 from dataprocess import create_dataloader_v1, get_raw_text
 
+
 def test_dataloader():
     dataloader = create_dataloader_v1(
         get_raw_text(),
