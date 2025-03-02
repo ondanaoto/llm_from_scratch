@@ -2,6 +2,7 @@ import torch
 
 from dataprocess import create_dataloader_v1, get_raw_text
 
+
 def test_positional_emb():
     vocab_size = 50257
     output_dim = 256
