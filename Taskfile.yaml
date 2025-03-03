@@ -10,7 +10,7 @@ tasks:
     cmds:
       - python setup/data_prepare.py
 
-  format:
+  fmt:
     desc: "Run Ruff"
     cmds:
       - ruff format .
