@@ -2,9 +2,9 @@ import torch
 
 from dataprocess import (
     SimpleRegexTokenizerV2,
-    get_vocab,
-    get_raw_text,
     create_dataloader_v1,
+    get_raw_text,
+    get_vocab,
 )
 
 
@@ -19,7 +19,8 @@ def test_embedding():
     # tokenizerのvocab_sizeだけoutput_dim次元ベクトルを作成する
     embedding_layer = torch.nn.Embedding(vocab_size, output_dim)
 
-    # tokenizerがgpt2のままだと，vocab_sizeを超えたidが割り振られてしまうことがあり，embedding_layerの入力の範囲を超えてしまう．
+    # tokenizerがgpt2のままだと，vocab_sizeを超えたidが割り振られてしまうことがあり，
+    # embedding_layerの入力の範囲を超えてしまう．
     dataloader = create_dataloader_v1(
         get_raw_text(), tokenizer, max_length=max_length, batch_size=batch_size
     )

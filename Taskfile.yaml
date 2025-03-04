@@ -14,6 +14,7 @@ tasks:
     desc: "Run Ruff"
     cmds:
       - ruff format .
+      - ruff check --fix
 
   test:
     desc: "Run tests"

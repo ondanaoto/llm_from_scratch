@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 
 
-# バッチ対応してない...
 class SelfAttention_v1(nn.Module):
     def __init__(self, d_in: int, d_out: int):
         super().__init__()
@@ -77,7 +76,7 @@ class CausalAttention(nn.Module):
         self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
 
         # dropoutの割合を引数にもつ
-        # self.dropoutはランダムにパラメータを0にし, 
+        # self.dropoutはランダムにパラメータを0にし,
         # 成分の和が一致するようにスケーリングする．
         # 例えばdropout=0.5の場合, 0.5の確率でパラメータが0になり，
         # 残りのパラメータは2倍される．
@@ -90,10 +89,7 @@ class CausalAttention(nn.Module):
         # self.maskでアクセスできる
         self.register_buffer(
             "mask",
-            torch.triu(
-                torch.ones(context_length, context_length),
-                diagonal=1
-                ),
+            torch.triu(torch.ones(context_length, context_length), diagonal=1),
         )
 
     def forward(self, x):
@@ -134,4 +130,76 @@ class CausalAttention(nn.Module):
         attn_weights = self.dropout(attn_weights)
 
         context_vec = attn_weights @ values
+        return context_vec
+
+
+class MultiHeadAttention(nn.Module):
+    def __init__(
+        self,
+        d_in: int,
+        d_out: int,
+        context_length: int,
+        num_heads: int,
+        dropout: float,
+        qkvbias=False,
+    ):
+        super().__init__()
+        self.d_out = d_out
+        self.num_heads = num_heads
+        assert d_out % num_heads == 0, "d_outはnum_headsで割り切れる必要がある"
+
+        self.head_dim = d_out // num_heads
+
+        self.W_query = nn.Linear(d_in, self.d_out, bias=qkvbias)
+        self.W_key = nn.Linear(d_in, self.d_out, bias=qkvbias)
+        self.W_value = nn.Linear(d_in, self.d_out, bias=qkvbias)
+
+        self.dropout = nn.Dropout(dropout)
+        self.register_buffer(
+            "mask", torch.triu(torch.ones(context_length, context_length), diagonal=1)
+        )
+        self.out_proj = nn.Linear(d_out, d_out)
+
+    def forward(self, x: torch.Tensor):
+        b, num_token, _ = x.shape
+
+        # shape: b * num_heads * num_token * head_dim
+        queries = (
+            self.W_query(x)
+            .view(b, num_token, self.num_heads, self.head_dim)
+            .transpose(1, 2)
+        )
+        keys = (
+            self.W_key(x)
+            .view(b, num_token, self.num_heads, self.head_dim)
+            .transpose(1, 2)
+        )
+        values = (
+            self.W_value(x)
+            .view(b, num_token, self.num_heads, self.head_dim)
+            .transpose(1, 2)
+        )
+
+        # shape: b * num_heads * num_token * num_token
+        attn_scores = queries @ keys.transpose(2, 3)
+        mask_bool = self.mask.bool()[:num_token, :num_token]
+        attn_scores.masked_fill_(mask_bool, -torch.inf)
+        attn_weights = torch.softmax(attn_scores / keys.shape[-1] ** 0.5, dim=-1)
+        attn_weights = self.dropout(attn_weights)
+
+        # shape: b * num_heads * num_token * head_dim
+        # transposeにより
+        # shape: b * num_token * num_heads * head_dim
+        # contiguos
+        # view, かつ d_out = num_heads * head_dim により
+        # shape: b * num_token * d_out
+        context_vec = (
+            (attn_weights @ values)
+            .transpose(1, 2)
+            .contiguous()
+            .view(b, num_token, self.d_out)
+        )
+
+        context_vec = self.out_proj(context_vec)
+
         return context_vec

@@ -20,7 +20,8 @@ def test_tiktoken():
     # BPEトークナイザの合計サイズが50257で，<|endoftoken|>は最後に割り当てられている．
     assert integers[8] == 50256
     # `someunknownPlace`という未知の単語が含まれていても元に戻る．
-    # これは，BPEトークナイザが，語彙に含まれていない単語をより小さなサブワード単位か，バラバラの文字に分解して対応するから．
+    # これは，BPEトークナイザが，語彙に含まれていない単語をより小さなサブワード単位か，
+    # バラバラの文字に分解して対応するから．
     assert tokenizer.decode(integers) == text
 
 

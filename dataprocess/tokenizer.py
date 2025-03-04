@@ -1,12 +1,14 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
-from .utils import split_by_simple_regex, remove_space_after_punctuation
+from .utils import remove_space_after_punctuation, split_by_simple_regex
 
 
 class TokenizerInterface(ABC):
+    @abstractmethod
     def encode(self, text: str) -> list[int]:
         raise NotImplementedError
 
+    @abstractmethod
     def decode(self, ids: list[int]) -> str:
         raise NotImplementedError
 

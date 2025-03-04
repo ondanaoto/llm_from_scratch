@@ -1,4 +1,4 @@
-from dataprocess import *
+from dataprocess import SimpleRegexTokenizerV1, SimpleRegexTokenizerV2, get_vocab
 
 vocab = get_vocab()
 tokenizerv1 = SimpleRegexTokenizerV1(vocab)
