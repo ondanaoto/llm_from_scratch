@@ -20,8 +20,13 @@ def test_simple_attention():
     # [[0.2, 0.8],
     #  [0.3, 0.7]]みたいな
     atten_weight = torch.softmax(var_mat, dim=-1)
-    assert atten_weight.sum(dim=-1)[0] - 1.0 > -0.001
-    assert atten_weight.sum(dim=-1)[0] - 1.0 < 0.001
+    assert torch.allclose(
+        atten_weight.sum(dim=-1),
+        torch.ones(
+            num_tokens,
+        ),
+        atol=1e-7,
+    )
 
     value_vec = token_pos_vec
     context_vecs = atten_weight @ value_vec
@@ -42,8 +47,13 @@ def test_trainable_attention():
     # 単語埋め込みベクトル次元の平方根で割って正規化してsoftmaxする
     assert d_out == key_vec.shape[-1]
     atten_weight = torch.softmax(var_mat / key_vec.shape[-1] ** 0.5, dim=-1)
-    assert atten_weight.sum(dim=-1)[0] - 1.0 > -0.001
-    assert atten_weight.sum(dim=-1)[0] - 1.0 < 0.001
+    assert torch.allclose(
+        atten_weight.sum(dim=-1),
+        torch.ones(
+            num_tokens,
+        ),
+        atol=1e-7,
+    )
 
     W_value = torch.nn.Parameter(torch.rand(d_in, d_out))
     value_vec = token_pos_vec @ W_value
@@ -66,8 +76,13 @@ def test_causal():
     # batch_size * content_length * content_length配列
     attn_scores = queries @ keys.transpose(1, 2)
     attn_weights = torch.softmax(attn_scores, dim=-1)
-    assert attn_weights[0][0].sum() - 1.0 < 0.001
-    assert attn_weights[0][1].sum() - 1.0 > -0.001
+    assert torch.allclose(
+        attn_weights.sum(dim=-1),
+        torch.ones(
+            num_tokens,
+        ),
+        atol=1e-7,
+    )
 
     # 引数の行列右上部分(未来のところ)を0にして下三角行列を作った
     mask_simple = torch.tril(torch.ones(batch_size, num_tokens, num_tokens))
@@ -87,10 +102,9 @@ def test_causal():
     # 線形に正規化する
     row_sums = masked_simple.sum(dim=-1, keepdim=True)
     masked_simple_norm = masked_simple / row_sums
-    for b in range(batch_size):
-        for i in range(num_tokens):
-            assert masked_simple_norm.sum(dim=-1)[b][i] - 1.0 > -0.01
-            assert masked_simple_norm.sum(dim=-1)[b][i] - 1.0 < 0.01
+    assert torch.allclose(
+        masked_simple_norm.sum(dim=-1), torch.ones(batch_size, num_tokens), atol=1e-7
+    )
 
     # 本当は，対角線上側を-infにしてsoftmaxすれば必要なタスクは終わる
     # それはCausalAttentionのforwardで実装

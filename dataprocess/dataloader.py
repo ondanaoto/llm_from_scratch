@@ -69,7 +69,7 @@ def create_dataloader_v1(
     shuffle: bool = True,
     drop_last=True,
     num_workers=0,
-):
+) -> DataLoader:
     """データローダーの作成
 
     Args:
