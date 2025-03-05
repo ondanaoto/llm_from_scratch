@@ -61,11 +61,13 @@ class DummyLayerNorm(nn.Module):
 
 class LayerNorm(nn.Module):
     # TODO: broadcastが効くならemb_dimの指定は不要では？
+    # emb_dimで指定する部分を1のままでしばらく放置してみて，
+    # テストが通らなくなったら見返す．
     def __init__(self, emb_dim):
         super().__init__()
         self.eps = 1e-5
-        self.scale = nn.Parameter(torch.ones(emb_dim))
-        self.shift = nn.Parameter(torch.zeros(emb_dim))
+        self.scale = nn.Parameter(torch.ones(1))
+        self.shift = nn.Parameter(torch.zeros(1))
 
     def forward(self, x: torch.Tensor):
         mean = x.mean(dim=-1, keepdim=True)
@@ -76,3 +78,35 @@ class LayerNorm(nn.Module):
         var = x.var(dim=-1, keepdim=True, unbiased=False)
         norm_x = (x - mean) / torch.sqrt(var + self.eps)
         return self.scale * norm_x + self.shift
+
+
+class GELU(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    # 教科書だと2.0 / torch.piをtorch.tensorでラップしているが，
+    # これは冗長で，パフォーマンスの面で若干マイナスなのだそう．
+    def forward(self, x):
+        return (
+            0.5
+            * x
+            * (
+                1
+                + torch.tanh(
+                    torch.sqrt(2.0 / torch.pi) * (x + 0.044715 * torch.pow(x, 3))
+                )
+            )
+        )
+
+
+class FeedForward(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(cfg["emb_dim"], 4 * cfg["emb_dim"]),
+            GELU(),
+            nn.Linear(4 * cfg["emb_dim"], cfg["emb_dim"]),
+        )
+
+    def forward(self, x):
+        return self.layers(x)
