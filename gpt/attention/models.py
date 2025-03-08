@@ -141,7 +141,7 @@ class MultiHeadAttention(nn.Module):
         context_length: int,
         num_heads: int,
         dropout: float,
-        qkvbias=False,
+        qkv_bias=False,
     ):
         super().__init__()
         self.d_out = d_out
@@ -150,9 +150,9 @@ class MultiHeadAttention(nn.Module):
 
         self.head_dim = d_out // num_heads
 
-        self.W_query = nn.Linear(d_in, self.d_out, bias=qkvbias)
-        self.W_key = nn.Linear(d_in, self.d_out, bias=qkvbias)
-        self.W_value = nn.Linear(d_in, self.d_out, bias=qkvbias)
+        self.W_query = nn.Linear(d_in, self.d_out, bias=qkv_bias)
+        self.W_key = nn.Linear(d_in, self.d_out, bias=qkv_bias)
+        self.W_value = nn.Linear(d_in, self.d_out, bias=qkv_bias)
 
         self.dropout = nn.Dropout(dropout)
         self.register_buffer(

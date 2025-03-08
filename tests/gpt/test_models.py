@@ -2,7 +2,7 @@ import tiktoken
 import torch
 
 from dataprocess import TokenizerInterface
-from gpt import GPT_CONFIG_124M, DummyGPTModel, LayerNorm
+from gpt import GPT_CONFIG_124M, DummyGPTModel, GPTModel, LayerNorm, TransformerBlock
 
 torch.manual_seed(123)
 
@@ -23,7 +23,7 @@ def test_layernorm():
     batch_size = 2
     emb_dim = 5
     batch_example = torch.rand(batch_size, emb_dim)
-    ln = LayerNorm(emb_dim=emb_dim)
+    ln = LayerNorm()
     out_ln: torch.Tensor = ln(batch_example)
     assert torch.allclose(out_ln.mean(dim=-1), torch.zeros(batch_size), atol=1e-7)
     # LayerNormでunbiased=Falseにして処理しているのでここもFalseにする
@@ -32,3 +32,31 @@ def test_layernorm():
     assert torch.allclose(
         out_ln.var(dim=-1, unbiased=False), torch.ones(batch_size), atol=1e-3
     )
+
+
+def test_transformer():
+    x = torch.rand(2, 4, GPT_CONFIG_124M["emb_dim"])
+    block = TransformerBlock(GPT_CONFIG_124M)
+    output = block(x)
+
+    assert x.shape == torch.Size([2, 4, 768])
+    assert output.shape == torch.Size([2, 4, 768])
+
+
+def test_gpt():
+    model = GPTModel(GPT_CONFIG_124M)
+    batch = torch.tensor([[6109, 3626, 6100, 3451], [6109, 1110, 6622, 257]])
+
+    out = model(batch)
+    assert batch.shape == torch.Size([2,4])
+    assert out.shape == torch.Size([2, 4, GPT_CONFIG_124M["vocab_size"]])
+
+def test_gpt_numel():
+    model = GPTModel(GPT_CONFIG_124M)
+    total_params = sum(p.numel() for p in model.parameters())
+    assert total_params == 162_971_186
+
+    assert model.tok_emb.weight.shape == torch.Size([GPT_CONFIG_124M["vocab_size"], GPT_CONFIG_124M["emb_dim"]])
+    # TODO: なぜ転置されている？
+    assert model.out_head.weight.shape == torch.Size([GPT_CONFIG_124M["vocab_size"], GPT_CONFIG_124M["emb_dim"]])
+

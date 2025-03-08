@@ -62,7 +62,7 @@ def test_trainable_attention():
 
 
 def test_causal():
-    from attention import SelfAttention_v2
+    from gpt import SelfAttention_v2
 
     batch_size = 16
     num_tokens = 4

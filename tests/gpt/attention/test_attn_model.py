@@ -1,6 +1,6 @@
 import torch
 
-from attention import (
+from gpt import (
     CausalAttention,
     MultiHeadAttention,
     SelfAttention_v1,
