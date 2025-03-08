@@ -188,12 +188,19 @@ class GPTModel(nn.Module):
 
     def forward(self, in_idx: torch.Tensor):
         _, seq_len = in_idx.shape
+        # tok_embeds.shape = [b, seq_len, emb_dim]
         tok_embeds = self.tok_emb(in_idx)
 
+        # pos_embeds.shape = [seq_len, emb_dim]
         pos_embeds = self.pos_emb(torch.arange(seq_len, device=in_idx.device))
+        # x.shape = [b, seq_len, emb_dim]
         x = tok_embeds + pos_embeds
+        # x.shape = [b, seq_len, emb_dim]
         x = self.drop_emb(x)
+        # x.shape = [b, seq_len, emb_dim]
         x = self.trf_blocks(x)
+        # x.shape = [b, seq_len, emb_dim]
         x = self.final_norm(x)
+        # logits.shape = [b, seq_len, vocab_size]
         logits = self.out_head(x)
         return logits
