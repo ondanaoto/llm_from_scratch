@@ -43,24 +43,25 @@ def test_transformer():
     assert output.shape == torch.Size([2, 4, 768])
 
 
+gpt_model = GPTModel(GPT_CONFIG_124M)
+
+
 def test_gpt():
-    model = GPTModel(GPT_CONFIG_124M)
     batch = torch.tensor([[6109, 3626, 6100, 3451], [6109, 1110, 6622, 257]])
 
-    out = model(batch)
+    out = gpt_model(batch)
     assert batch.shape == torch.Size([2, 4])
     assert out.shape == torch.Size([2, 4, GPT_CONFIG_124M["vocab_size"]])
 
 
 def test_gpt_numel():
-    model = GPTModel(GPT_CONFIG_124M)
-    total_params = sum(p.numel() for p in model.parameters())
+    total_params = sum(p.numel() for p in gpt_model.parameters())
     assert total_params == 162_971_186
 
     # nn.Embeddingのshapeがtransposeじゃないのも，扱いやすさが理由にありそう．
     # nn.Embeddingを利用するのはindexを指定して埋め込みベクトルを取得することなので，
     # 第一成分はindex, 第二成分にweightが入るという順番が適切．
-    assert model.tok_emb.weight.shape == torch.Size(
+    assert gpt_model.tok_emb.weight.shape == torch.Size(
         [GPT_CONFIG_124M["vocab_size"], GPT_CONFIG_124M["emb_dim"]]
     )
     # nn.Linearは, transposeを右から作用させるので左作用．
@@ -68,6 +69,6 @@ def test_gpt_numel():
     # weightのshapeと引数指定の順番が逆になっている．
     # nn.Linearで指定する引数の順番がtransposeした後の順番のメリットとしては
     # 作用以前の次元が先になるので直感的になる点が挙げられる．
-    assert model.out_head.weight.shape == torch.Size(
+    assert gpt_model.out_head.weight.shape == torch.Size(
         [GPT_CONFIG_124M["vocab_size"], GPT_CONFIG_124M["emb_dim"]]
     )
