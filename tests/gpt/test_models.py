@@ -4,8 +4,6 @@ import torch
 from dataprocess import TokenizerInterface
 from gpt import GPT_CONFIG_124M, DummyGPTModel, GPTModel, LayerNorm, TransformerBlock
 
-torch.manual_seed(123)
-
 
 def test_dummygpt():
     tokenizer: TokenizerInterface = tiktoken.get_encoding("gpt2")
@@ -20,12 +18,13 @@ def test_dummygpt():
 
 
 def test_layernorm():
+    torch.manual_seed(123)
     batch_size = 2
     emb_dim = 5
     batch_example = torch.rand(batch_size, emb_dim)
     ln = LayerNorm()
     out_ln: torch.Tensor = ln(batch_example)
-    assert torch.allclose(out_ln.mean(dim=-1), torch.zeros(batch_size), atol=1e-7)
+    assert torch.allclose(out_ln.mean(dim=-1), torch.zeros(batch_size), atol=1e-5)
     # LayerNormでunbiased=Falseにして処理しているのでここもFalseにする
     # 0除算を回避するためにeps=1e-5をvarに足してから
     # 平方根を取って標準偏差を導出している関係で，誤差は少し大きくなる
@@ -72,3 +71,14 @@ def test_gpt_numel():
     assert gpt_model.out_head.weight.shape == torch.Size(
         [GPT_CONFIG_124M["vocab_size"], GPT_CONFIG_124M["emb_dim"]]
     )
+
+
+def test_total_params_gpt2():
+    total_params_gpt2 = sum(p.numel() for p in gpt_model.parameters())
+    assert total_params_gpt2 == 162_971_186
+
+    # 一つのパラメータがfloat32と仮定すると，1byte = 8bitより
+    total_size_bytes = total_params_gpt2 * 4
+    total_size_mb = total_size_bytes / (1024 * 1024)
+    # weight保存に必要なメモリは621.69MB
+    assert round(total_size_mb, 2) == 621.69

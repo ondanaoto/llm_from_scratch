@@ -12,3 +12,4 @@ from .models import (
     LayerNorm,
     TransformerBlock,
 )
+from .utils import generate_text_simple

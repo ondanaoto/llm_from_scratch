@@ -3,8 +3,6 @@ import torch.nn as nn
 
 from gpt import ExampleShortCutDeepNN
 
-torch.manual_seed(123)
-
 
 def print_gradients(model: nn.Module, x: torch.Tensor, target: torch.Tensor):
     """loss計算時のモデルのパラメータの勾配をprintする"""
