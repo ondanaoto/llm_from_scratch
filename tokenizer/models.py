@@ -1,6 +1,11 @@
+import re
 from abc import ABC, abstractmethod
 
-from .utils import remove_space_after_punctuation, split_by_simple_regex
+from utils import split_by_simple_regex
+
+
+def _remove_space_after_punctuation(text: str) -> str:
+    return re.sub(r"\s+([,.?!()\'])", r"\1", text)
 
 
 class TokenizerInterface(ABC):
@@ -24,14 +29,14 @@ class SimpleRegexTokenizerV1(TokenizerInterface):
         self.str_to_int = vocab
         self.int_to_str = {i: token for token, i in vocab.items()}
 
-    def encode(self, text: str) -> list[int]:
+    def encode(self, text: str, **kwargs) -> list[int]:
         tokens = split_by_simple_regex(text)
         ids = [self.str_to_int[token] for token in tokens]
         return ids
 
     def decode(self, ids: list[int]) -> str:
         text = " ".join([self.int_to_str[i] for i in ids])
-        text = remove_space_after_punctuation(text)
+        text = _remove_space_after_punctuation(text)
         return text
 
 
@@ -48,7 +53,7 @@ class SimpleRegexTokenizerV2(TokenizerInterface):
         self.str_to_int["<|endoftext|>"] = max_id + 1
         self.int_to_str = {i: token for token, i in vocab.items()}
 
-    def encode(self, text: str) -> list[int]:
+    def encode(self, text: str, **kwargs) -> list[int]:
         split_result = split_by_simple_regex(text)
         ids = [
             self.str_to_int.get(token, self.str_to_int["<|unk|>"])
@@ -56,7 +61,7 @@ class SimpleRegexTokenizerV2(TokenizerInterface):
         ]
         return ids
 
-    def decode(self, ids: list[int]) -> str:
+    def decode(self, ids: list[int], **kwargs) -> str:
         text = " ".join([self.int_to_str[i] for i in ids])
-        text = remove_space_after_punctuation(text)
+        text = _remove_space_after_punctuation(text)
         return text

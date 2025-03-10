@@ -1,11 +1,10 @@
 import torch
 
-from dataprocess import (
+from dataloader.utils import create_dataloader_v1
+from tokenizer import (
     SimpleRegexTokenizerV2,
-    create_dataloader_v1,
-    get_raw_text,
-    get_vocab,
 )
+from utils import get_raw_text, get_vocab
 
 
 def test_embedding():

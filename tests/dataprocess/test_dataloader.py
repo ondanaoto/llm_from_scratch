@@ -1,4 +1,5 @@
-from dataprocess import create_dataloader_v1, get_raw_text
+from dataloader.utils import create_dataloader_v1
+from utils import get_raw_text
 
 
 def test_dataloader():

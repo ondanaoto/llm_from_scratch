@@ -1,8 +1,8 @@
 import tiktoken
 import torch
 
-from dataprocess import TokenizerInterface
 from gpt import GPT_CONFIG_124M, DummyGPTModel, GPTModel, LayerNorm, TransformerBlock
+from tokenizer import TokenizerInterface
 
 
 def test_dummygpt():

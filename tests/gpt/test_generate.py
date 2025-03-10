@@ -1,7 +1,8 @@
 import tiktoken
 import torch
 
-from gpt import GPT_CONFIG_124M, GPTModel, generate_text_simple
+from gpt import GPT_CONFIG_124M, GPTModel
+from gpt.utils import generate_text_simple
 
 
 def test_text_simple():
@@ -23,7 +24,7 @@ def test_text_simple():
         max_new_tokens=6,
         context_size=GPT_CONFIG_124M["context_length"],
     )
-    out_idx = (out.squeeze().tolist())
+    out_idx = out.squeeze().tolist()
     assert out_idx[:4] == encoded
     assert len(out_idx) == 10
     decoded_text = tokenizer.decode(out_idx)

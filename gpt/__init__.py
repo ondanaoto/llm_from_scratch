@@ -1,10 +1,4 @@
-from .attention import (
-    CausalAttention,
-    MultiHeadAttention,
-    SelfAttention_v1,
-    SelfAttention_v2,
-)
-from .configs import GPT_CONFIG_124M
+from .configs import GPT_CONFIG_124M, GPT_CONFIG_124M_SHORT_CONTEXT
 from .models import (
     DummyGPTModel,
     ExampleShortCutDeepNN,
@@ -12,4 +6,3 @@ from .models import (
     LayerNorm,
     TransformerBlock,
 )
-from .utils import generate_text_simple
