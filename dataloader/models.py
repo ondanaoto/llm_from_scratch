@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 
-from tokenizer import TokenizerInterface
+from tokenizer import Tokenizer
 
 
 class GPTDatasetV1(Dataset):
@@ -10,7 +10,7 @@ class GPTDatasetV1(Dataset):
     """
 
     def __init__(
-        self, txt: str, tokenizer: TokenizerInterface, max_length: int, stride: int
+        self, txt: str, tokenizer: Tokenizer, max_length: int, stride: int
     ):
         """訓練のためのdatasetを作成するクラス
 

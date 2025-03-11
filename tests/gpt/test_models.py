@@ -2,11 +2,11 @@ import tiktoken
 import torch
 
 from gpt import GPT_CONFIG_124M, DummyGPTModel, GPTModel, LayerNorm, TransformerBlock
-from tokenizer import TokenizerInterface
+from tokenizer import Tokenizer
 
 
 def test_dummygpt():
-    tokenizer: TokenizerInterface = tiktoken.get_encoding("gpt2")
+    tokenizer: Tokenizer = tiktoken.get_encoding("gpt2")
     texts = ["Every effort moves you", "Every day holds a"]
     batch = torch.stack([torch.tensor(tokenizer.encode(text)) for text in texts], dim=0)
     assert batch.shape == torch.Size([2, 4])

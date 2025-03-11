@@ -8,7 +8,7 @@ def _remove_space_after_punctuation(text: str) -> str:
     return re.sub(r"\s+([,.?!()\'])", r"\1", text)
 
 
-class TokenizerInterface(ABC):
+class Tokenizer(ABC):
     @abstractmethod
     def encode(self, text: str) -> list[int]:
         raise NotImplementedError
@@ -18,7 +18,7 @@ class TokenizerInterface(ABC):
         raise NotImplementedError
 
 
-class SimpleRegexTokenizerV1(TokenizerInterface):
+class SimpleRegexTokenizerV1(Tokenizer):
     """
     与えられた語彙の対応を用いてエンコード・デコードを行うトークナイザー．
     単語への分割は正規表現を用いたルールベース．
@@ -40,7 +40,7 @@ class SimpleRegexTokenizerV1(TokenizerInterface):
         return text
 
 
-class SimpleRegexTokenizerV2(TokenizerInterface):
+class SimpleRegexTokenizerV2(Tokenizer):
     """
     `SimpleRegexTokenizerV1`と基本は同じだが，語彙の外の単語には`<|unk|>`を割り当てる．
     また，無関係な文の繋がりに挟む`<|endoftext|>`を語彙に追加してある．

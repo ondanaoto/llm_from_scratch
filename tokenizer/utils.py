@@ -1,16 +1,16 @@
 import torch
 
-from .models import TokenizerInterface
+from .models import Tokenizer
 
 
-def text_to_token_ids(text: str, tokenizer: TokenizerInterface) -> torch.Tensor:
+def text_to_token_ids(text: str, tokenizer: Tokenizer) -> torch.Tensor:
     encoded: list[int] = tokenizer.encode(text, allowed_special={"<|endoftext|>"})
     # shape: (1, seq_len)
     encoded_tensor = torch.tensor(encoded).unsqueeze(0)
     return encoded_tensor
 
 
-def token_ids_to_text(token_ids: torch.Tensor, tokenizer: TokenizerInterface) -> str:
+def token_ids_to_text(token_ids: torch.Tensor, tokenizer: Tokenizer) -> str:
     """token_idsをデコードしてテキストに変換する
     shapeは(1, seq_len)であることを想定している
 

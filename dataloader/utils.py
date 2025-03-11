@@ -1,14 +1,14 @@
 import tiktoken
 from torch.utils.data import DataLoader
 
-from tokenizer import TokenizerInterface
+from tokenizer import Tokenizer
 
 from .models import GPTDatasetV1
 
 
 def create_dataloader_v1(
     txt: str,
-    tokenizer: TokenizerInterface | None = None,
+    tokenizer: Tokenizer | None = None,
     batch_size: int = 1,
     max_length: int = 256,
     stride: int = 128,

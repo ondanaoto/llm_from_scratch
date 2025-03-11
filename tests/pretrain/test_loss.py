@@ -21,6 +21,7 @@ def test_compute_loss():
         # = [2, 3, 50257]
         logits: torch.Tensor = model(inputs)
 
+    # 0次元から1次元までをflatにするので以下のshapeになる
     # shape: [batch*seq_len, vocab_size] = [6, 50257]
     logits_flat = logits.flatten(0, 1)
     # shape: [batch*seq_len] = [6]
