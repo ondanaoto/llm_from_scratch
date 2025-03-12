@@ -35,7 +35,7 @@ def create_train_val_dataloader() -> tuple[DataLoader, DataLoader]:
     return train_dataloader, val_dataloader
 
 
-def _calc_loss_batch(
+def calc_loss_batch(
     input_batch: torch.Tensor,
     target_batch: torch.Tensor,
     model: nn.Module,
@@ -56,6 +56,7 @@ def calc_loss_loader(
     num_batches: int | None = None,
 ) -> float:
     """データローダーのbatchに対する損失を算出する
+    訓練の評価時に用いる想定なので，勾配は気にしない想定でreturnもfloat．
 
     Args:
         data_loader (DataLoader): データローダー
@@ -81,7 +82,7 @@ def calc_loss_loader(
     for i, (input_batch, target_batch) in enumerate(data_loader):
         if i >= num_batches:
             break
-        loss = _calc_loss_batch(input_batch, target_batch, model, device)
+        loss = calc_loss_batch(input_batch, target_batch, model, device)
         total_loss += loss.item()
 
     return total_loss / num_batches

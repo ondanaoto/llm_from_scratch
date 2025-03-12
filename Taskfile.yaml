@@ -17,6 +17,11 @@ tasks:
       - ruff check --fix
 
   test:
-    desc: "Run tests"
+    desc: "Run all tests"
     cmds:
       - pytest
+
+  test-short:
+    desc: "Run tests excluding those marked as 'slow'"
+    cmds:
+      - pytest -m "not slow"

@@ -9,9 +9,7 @@ class GPTDatasetV1(Dataset):
     訓練のためのdatasetを作成するクラス
     """
 
-    def __init__(
-        self, txt: str, tokenizer: Tokenizer, max_length: int, stride: int
-    ):
+    def __init__(self, txt: str, tokenizer: Tokenizer, max_length: int, stride: int):
         """訓練のためのdatasetを作成するクラス
 
         Args:

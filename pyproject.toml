@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "matplotlib>=3.10.1",
     "numpy>=2.2.3",
     "tiktoken>=0.9.0",
     "torch>=2.6.0",
@@ -35,3 +36,9 @@ select = [
 # ファイルごとのエラー除外
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "serial",
+]

@@ -2,7 +2,7 @@ import pytest
 import torch
 
 from gpt import GPT_CONFIG_124M_SHORT_CONTEXT, GPTModel
-from pretrain.tools import calc_loss_loader, create_train_val_dataloader
+from pretrain.utils import calc_loss_loader, create_train_val_dataloader
 
 
 def test_tools():
