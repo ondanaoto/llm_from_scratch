@@ -9,6 +9,7 @@ from view.train_val_loss import plot_losses
 
 
 @pytest.mark.slow
+@pytest.mark.view
 def test_train_simple_view():
     torch.manual_seed(123)
 

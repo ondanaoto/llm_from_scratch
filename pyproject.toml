@@ -40,5 +40,6 @@ select = [
 [tool.pytest.ini_options]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "view: marks tests as view (deselect with '-m \"not view\"')",
     "serial",
 ]

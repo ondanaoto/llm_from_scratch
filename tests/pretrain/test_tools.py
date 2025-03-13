@@ -5,7 +5,7 @@ from gpt import GPT_CONFIG_124M_SHORT_CONTEXT, GPTModel
 from pretrain.utils import calc_loss_loader, create_train_val_dataloader
 
 
-def test_tools():
+def test_eval_loader():
     torch.manual_seed(123)
     train_loader, val_loader = create_train_val_dataloader()
     model = GPTModel(GPT_CONFIG_124M_SHORT_CONTEXT)
