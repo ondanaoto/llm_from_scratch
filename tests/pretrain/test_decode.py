@@ -1,7 +1,11 @@
 import matplotlib.pyplot as plt
 import pytest
+import tiktoken
 import torch
 
+from gpt import GPT_CONFIG_124M_SHORT_CONTEXT, GPTModel
+from gpt.utils import generate
+from tokenizer.utils import text_to_token_ids, token_ids_to_text
 from utils import softmax_with_temperature
 
 vocab = {
@@ -73,7 +77,60 @@ def test_topk_sampling():
 
     new_logits = torch.where(
         condition=next_token_logits < top_logits[-1],
-        input=torch.tensor(float('-inf')),
-        other=next_token_logits
+        input=torch.tensor(float("-inf")),
+        other=next_token_logits,
     )
-    print(new_logits)
+    assert torch.allclose(
+        new_logits,
+        torch.tensor(
+            [
+                4.5100,
+                float("-inf"),
+                float("-inf"),
+                6.7500,
+                float("-inf"),
+                float("-inf"),
+                float("-inf"),
+                6.2800,
+                float("-inf"),
+            ]
+        ),
+    )
+    topk_probas = torch.softmax(new_logits, dim=0)
+    assert torch.allclose(
+        topk_probas,
+        torch.tensor(
+            [
+                0.0615,
+                0.0000,
+                0.0000,
+                0.5775,
+                0.0000,
+                0.0000,
+                0.0000,
+                0.3610,
+                0.0000,
+            ]
+        ),
+        atol=1e-4,
+    )
+
+
+def test_generate():
+    torch.manual_seed(123)
+    model = GPTModel(GPT_CONFIG_124M_SHORT_CONTEXT)
+    tokenizer = tiktoken.get_encoding("gpt2")
+
+    token_ids = generate(
+        model=model,
+        idx=text_to_token_ids("Every effort moves you", tokenizer),
+        max_new_tokens=15,
+        context_size=GPT_CONFIG_124M_SHORT_CONTEXT["context_length"],
+        top_k=25,
+        temperature=1.4,
+    )
+    expected = (
+        "Every effort moves you Samoa Cubsdebug Saga reimb "
+        "ShannonBow eight disable elemental Added scrapsassium Newsashes"
+    )
+    assert token_ids_to_text(token_ids, tokenizer) == expected

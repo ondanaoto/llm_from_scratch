@@ -42,3 +42,52 @@ def generate_text_simple(
         idx = torch.cat((idx, idx_next), dim=1)
 
     return idx
+
+
+def generate(
+    model: nn.Module,
+    idx: torch.Tensor,
+    max_new_tokens: int,
+    context_size: int,
+    temperature: float = 0.0,
+    top_k: int | None = None,
+    eos_id=None,
+) -> torch.Tensor:
+    for _ in range(max_new_tokens):
+        idx_cond = idx[:, -context_size:]
+        with torch.no_grad():
+            # shape: [batch_size, n_token, vocab_size]
+            logits = model(idx_cond)
+
+        # shape: [batch_size, vocab_size]
+        # 各バッチの次単語のlogits
+        logits = logits[:, -1, :]
+
+        if top_k is not None:
+            top_logits, _ = torch.topk(logits, top_k)
+            # k番目に高いlogitsを取得する
+            # この値以下のlogitsを-infに変換するために
+            min_val = top_logits[:, -1]
+            logits = torch.where(
+                condition=logits < min_val,
+                input=torch.tensor(float("-inf")).to(logits.device),
+                other=logits,
+            )
+
+        if temperature > 0.0:
+            logits = logits / temperature
+            probs = torch.softmax(logits, dim=-1)
+            # 確率分布に従ったidxのサンプリング
+            # shape: [batch_size, 1]
+            idx_next = torch.multinomial(probs, num_samples=1)
+        else:
+            # shape: [batch_size, 1]
+            idx_next = torch.argmax(logits, dim=-1, keepdim=True)
+
+        # batch全ての最後がeos_idだったらbreak
+        if idx_next == eos_id:
+            break
+
+        idx = torch.cat((idx, idx_next), dim=1)
+
+    return idx
