@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 
 from tokenizer import Tokenizer
 
-from .models import GPTDatasetV1
+from .models import GPTDatasetV1, SpamDataset
 
 
 def create_dataloader_v1(
@@ -52,3 +52,50 @@ def create_dataloader_v1(
     )
 
     return dataloader
+
+
+def create_spam_dataloaders() -> tuple[DataLoader, DataLoader, DataLoader]:
+    """訓練・検証・テスト用のspam dataloaderを作成する
+    訓練データローダーだけはdrop_last=Trueとしている
+    というのも，勾配の更新の時のデータ数が少ない部分があると学習が安定しなかったり
+    バッチサイズが揃ってないと計算効率が悪くなるから．
+    検証・テストでは厳密に評価したいのでデータを落としたくない．
+
+    Returns:
+        tuple[DataLoader, DataLoader, DataLoader]:
+        訓練データローダー，検証データローダー，テストデータローダー
+    """
+    num_workers = 0
+    batch_size = 8
+    tokenizer = tiktoken.get_encoding("gpt2")
+    train_dataset = SpamDataset(csv_file="data/train.csv", tokenizer=tokenizer)
+    val_dataset = SpamDataset(
+        csv_file="data/validation.csv",
+        tokenizer=tokenizer,
+        max_length=train_dataset.max_length,
+    )
+    test_dataset = SpamDataset(
+        csv_file="data/test.csv",
+        tokenizer=tokenizer,
+        max_length=train_dataset.max_length,
+    )
+    train_loader = DataLoader(
+        dataset=train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        drop_last=True,
+    )
+    val_loader = DataLoader(
+        dataset=val_dataset,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        drop_last=False,
+    )
+    test_loader = DataLoader(
+        dataset=test_dataset,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        drop_last=False,
+    )
+    return train_loader, val_loader, test_loader

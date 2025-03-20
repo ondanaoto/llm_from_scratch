@@ -1,4 +1,4 @@
-from dataloader.utils import create_dataloader_v1
+from dataloader.utils import create_dataloader_v1, create_spam_dataloaders
 from utils import get_raw_text
 
 
@@ -16,3 +16,12 @@ def test_dataloader():
     # バッチサイズが4で，max_lengthが10なので，(4, 10)のshapeが返される
     assert first_batch[0].shape == (4, 10)
     assert first_batch[1].shape == (4, 10)
+
+
+def test_spam_dataset():
+    train_loader, _, _ = create_spam_dataloaders()
+
+    for input_batch, _ in train_loader:
+        pass
+
+    print("Input batch dimension:", input_batch.shape)

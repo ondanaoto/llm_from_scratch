@@ -8,7 +8,7 @@ tasks:
   init:
     desc: "Initialize project"
     cmds:
-      - python setup/data_prepare.py
+      - python setup/exec.py
 
   fmt:
     desc: "Run Ruff"
