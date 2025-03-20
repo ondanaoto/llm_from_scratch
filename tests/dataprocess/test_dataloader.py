@@ -19,9 +19,11 @@ def test_dataloader():
 
 
 def test_spam_dataset():
+    import torch
     train_loader, _, _ = create_spam_dataloaders()
 
-    for input_batch, _ in train_loader:
+    for input_batch, target_batch in train_loader:
         pass
 
-    print("Input batch dimension:", input_batch.shape)
+    assert input_batch.shape == torch.Size([8,120])
+    assert target_batch.shape == torch.Size([8])
