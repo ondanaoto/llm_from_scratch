@@ -20,10 +20,10 @@ def test_dataloader():
 
 def test_spam_dataset():
     import torch
+
     train_loader, _, _ = create_spam_dataloaders()
 
-    for input_batch, target_batch in train_loader:
-        pass
+    input_batch, target_batch = train_loader[0]
 
-    assert input_batch.shape == torch.Size([8,120])
+    assert input_batch.shape == torch.Size([8, 120])
     assert target_batch.shape == torch.Size([8])
